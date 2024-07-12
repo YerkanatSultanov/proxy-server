@@ -1,0 +1,60 @@
+definitions:
+  entity.ProxyRequest:
+    properties:
+      headers:
+        additionalProperties:
+          type: string
+        type: object
+      method:
+        type: string
+      url:
+        type: string
+    type: object
+  entity.ProxyResponse:
+    properties:
+      headers:
+        additionalProperties:
+          type: string
+        type: object
+      id:
+        type: string
+      length:
+        type: integer
+      status:
+        type: integer
+    type: object
+info:
+  contact: {}
+  description: This is a server to proxy HTTP requests.
+  title: HTTP Proxy Server API
+  version: "1.0"
+paths:
+  /proxy:
+    post:
+      consumes:
+      - application/json
+      description: Proxies an HTTP request to a specified URL.
+      parameters:
+      - description: Request payload
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/entity.ProxyRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.ProxyResponse'
+        "400":
+          description: Invalid request
+          schema:
+            type: string
+        "500":
+          description: Failed to proxy request
+          schema:
+            type: string
+      summary: Proxy HTTP request
+swagger: "2.0"

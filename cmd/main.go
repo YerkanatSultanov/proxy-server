@@ -2,10 +2,10 @@ package main
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/gookit/slog"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"log"
-	"log/slog"
 	"net/http"
 	"os"
 	"proxy-server/internal/handler"
@@ -17,6 +17,7 @@ import (
 
 func main() {
 	router := gin.Default()
+
 	router.POST("/proxy", handler.HandleRequest)
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
@@ -24,6 +25,6 @@ func main() {
 	if port == "" {
 		port = "8080"
 	}
-	slog.Info("Starting server", slog.String("port", port))
+	slog.Infof("Starting server port=%s", port)
 	log.Fatal(http.ListenAndServe(":"+port, router))
 }

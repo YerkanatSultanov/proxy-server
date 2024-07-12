@@ -1,10 +1,14 @@
-FROM golang:1.22
+FROM golang:1.22-alpine
 
 WORKDIR /app
 
-COPY go.mod .
-COPY /cmd/main.go .
+COPY go.mod go.sum ./
+RUN go mod download
 
-RUN go build -o bin .
+COPY . .
 
-ENTRYPOINT ["/app/bin"]
+RUN go build -o proxy-server ./cmd/main.go
+
+EXPOSE 8080
+
+CMD ["./proxy-server"]

@@ -3,8 +3,9 @@ package handler
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"golang.org/x/exp/slog"
+	"github.com/gookit/slog"
 	"net/http"
+	_ "proxy-server/docs"
 	"proxy-server/internal/proxy"
 	"proxy-server/internal/store"
 	"proxy-server/pkg/entity"
@@ -16,8 +17,8 @@ import (
 // @Description Proxies an HTTP request to a specified URL.
 // @Accept  json
 // @Produce  json
-// @Param   request body models.Request true "Request payload"
-// @Success 200 {object} models.Response
+// @Param   request body entity.ProxyRequest true "Request payload"
+// @Success 200 {object} entity.ProxyResponse
 // @Failure 400 {string} string "Invalid request"
 // @Failure 500 {string} string "Failed to proxy request"
 // @Router /proxy [post]
@@ -25,13 +26,13 @@ func HandleRequest(c *gin.Context) {
 	var req entity.ProxyRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
-		slog.Error("Invalid request", slog.Any("error", err))
+		slog.Errorf("Invalid request %s", err)
 		return
 	}
 
 	if err := utils.ValidateRequest(req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		slog.Error("Invalid request data", slog.Any("error", err))
+		slog.Errorf("Invalid request data %s", err)
 		return
 	}
 
@@ -41,7 +42,7 @@ func HandleRequest(c *gin.Context) {
 	res, err := proxy.SendRequest(req)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to proxy request"})
-		slog.Error("Failed to proxy request", slog.Any("error", err))
+		slog.Errorf("Failed to proxy request %s", err)
 		return
 	}
 
@@ -49,5 +50,5 @@ func HandleRequest(c *gin.Context) {
 	store.SaveResponse(reqID, res)
 
 	c.JSON(http.StatusOK, res)
-	slog.Info("Request proxied successfully", slog.String("request_id", reqID))
+	slog.Infof("Request proxied successfully %v", reqID)
 }
